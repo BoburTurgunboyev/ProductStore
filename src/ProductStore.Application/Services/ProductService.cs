@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 using ProductStore.Domain.Dtos;
 using ProductStore.Domain.Entities;
 using ProductStore.Infrastructure.Data;
@@ -10,15 +9,10 @@ namespace ProductStore.Application.Services
     public class ProductService : IProductService
     {
         private readonly IProductRepository _repository;
-        private readonly IMapper _mapper;
-        private readonly AppDbContext _appDbContext;
-
-
-        public ProductService(IMapper mapper, IProductRepository repository)
+       
+        public ProductService( IProductRepository repository)
         {
-            _mapper = mapper;
             _repository = repository;
-
         }
 
         public async ValueTask<Product> AddAsync(ProductDto productDto)
@@ -84,7 +78,21 @@ namespace ProductStore.Application.Services
             }
         }
 
-        public async ValueTask<Product> ModifyAsync(Guid id, ProductDto productDto)
+        public async ValueTask<Product?> RetrieveByIdAsync(Guid id)
+        {
+            if (id == null) throw new ArgumentNullException(nameof(id), "The 'id' parameter cannot be null.");
+            try
+            {
+                var product = await _repository.SelectByIdAsync(id);
+                return product;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("Error retrievbyIDing products", ex);
+            }
+        }
+
+        public async ValueTask<Product> ModifyAsync(Guid id, Product productDto)
         {
             if (productDto == null || id == null) throw new ArgumentException("Both 'productDto' and 'id' parameters cannot be null.");
             try

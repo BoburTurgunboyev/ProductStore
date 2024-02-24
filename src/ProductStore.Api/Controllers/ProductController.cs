@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProductStore.Application.Services;
 using ProductStore.Domain.Dtos;
+using ProductStore.Domain.Entities;
 
 namespace ProductStore.Api.Controllers
 {
@@ -37,7 +38,7 @@ namespace ProductStore.Api.Controllers
         }
 
         [HttpPut]
-        public async ValueTask<IActionResult> Put(Guid id, ProductDto productDto)
+        public async ValueTask<IActionResult> Put(Guid id, Product productDto)
         {
             var product = await _productService.ModifyAsync(id, productDto);
             return Ok(product);
