@@ -1,113 +1,110 @@
-﻿using AutoMapper;
-using ProductStore.Domain.Dtos;
+﻿using ProductStore.Domain.Dtos;
 using ProductStore.Domain.Entities;
-using ProductStore.Infrastructure.Data;
 using ProductStore.Infrastructure.Repositories;
 
-namespace ProductStore.Application.Services
+namespace ProductStore.Application.Services;
+
+public class ProductService : IProductService
 {
-    public class ProductService : IProductService
+    private readonly IProductRepository _repository;
+
+    public ProductService(IProductRepository repository)
     {
-        private readonly IProductRepository _repository;
-       
-        public ProductService( IProductRepository repository)
+        _repository = repository;
+    }
+
+    public async ValueTask<Product> AddAsync(ProductDto productDto)
+    {
+        if (productDto == null) throw new ArgumentException("The 'productDto' parameters cannot be null.");
+
+        try
         {
-            _repository = repository;
+            var product = new Product()
+            {
+                Name = productDto.Name,
+                Description = productDto.Description,
+            };
+            await _repository.InsertAsync(product);
+            return product;
+        }
+        catch (Exception ex)
+        {
+            throw new ApplicationException(" Product Could not created ", ex);
         }
 
-        public async ValueTask<Product> AddAsync(ProductDto productDto)
+    }
+
+    public async ValueTask<Product> RemoveAsync(Guid id)
+    {
+        if (id == null) throw new ArgumentNullException(nameof(id), "The 'id' parameter cannot be null.");
+
+        try
         {
-            if (productDto == null) throw new ArgumentException("The 'productDto' parameters cannot be null.");
-
-            try
-            {
-                var product = new Product()
-                {
-                    Name = productDto.Name,
-                    Description = productDto.Description,
-                };
-                await _repository.InsertAsync(product);
-                return product;
-            }
-            catch (Exception ex)
-            {
-                throw new ApplicationException(" Product Could not created ", ex);
-            }
-
+            var product = await _repository.DeleteAsync(id);
+            return product;
         }
-
-        public async ValueTask<Product> RemoveAsync(Guid id)
+        catch
         {
-            if (id == null) throw new ArgumentNullException(nameof(id), "The 'id' parameter cannot be null.");
-
-            try
-            {
-                var product = await _repository.DeleteAsync(id);
-                return product;
-            }
-            catch
-            {
-                throw new ApplicationException($"Could not delete {id}");
-            }
+            throw new ApplicationException($"Could not delete {id}");
         }
+    }
 
-        public async ValueTask<IList<Product>> RetrieveAllAsync()
+    public async ValueTask<IList<Product>> RetrieveAllAsync()
+    {
+        try
         {
-            try
-            {
-                var product = await _repository.SelectAllAsync();
-                return product;
-            }
-            catch (Exception ex)
-            {
-                throw new ApplicationException("Error retrieving products", ex);
-            }
+            var product = await _repository.SelectAllAsync();
+            return product;
         }
-
-        public async ValueTask<Product?> RetrieveByNameAsync(string name)
+        catch (Exception ex)
         {
-            if (name is null) throw new ArgumentNullException(nameof(name), "The 'name' parameter cannot be null.");
-            try
-            {
-                var product = await _repository.SelectByNameAsync(name);
-                return product;
-            }
-            catch (Exception ex)
-            {
-                throw new ApplicationException("Error retrievbyNameing products", ex);
-            }
+            throw new ApplicationException("Error retrieving products", ex);
         }
+    }
 
-        public async ValueTask<Product?> RetrieveByIdAsync(Guid id)
+    public async ValueTask<Product?> RetrieveByNameAsync(string name)
+    {
+        if (name is null) throw new ArgumentNullException(nameof(name), "The 'name' parameter cannot be null.");
+        try
         {
-            if (id == null) throw new ArgumentNullException(nameof(id), "The 'id' parameter cannot be null.");
-            try
-            {
-                var product = await _repository.SelectByIdAsync(id);
-                return product;
-            }
-            catch (Exception ex)
-            {
-                throw new ApplicationException("Error retrievbyIDing products", ex);
-            }
+            var product = await _repository.SelectByNameAsync(name);
+            return product;
         }
-
-        public async ValueTask<Product> ModifyAsync(Guid id, Product productDto)
+        catch (Exception ex)
         {
-            if (productDto == null || id == null) throw new ArgumentException("Both 'productDto' and 'id' parameters cannot be null.");
-            try
-            {
-                var product = await _repository.SelectByIdAsync(id);
-                product.Name = productDto.Name;
-                product.Description = productDto.Description;
+            throw new ApplicationException("Error retrievbyNameing products", ex);
+        }
+    }
 
-                var result = await _repository.UpdateAsync(id, product);
-                return result;
-            }
-            catch (Exception ex)
-            {
-                throw new ApplicationException(" Product Could not created ", ex);
-            }
+    public async ValueTask<Product?> RetrieveByIdAsync(Guid id)
+    {
+        if (id == null) throw new ArgumentNullException(nameof(id), "The 'id' parameter cannot be null.");
+        try
+        {
+            var product = await _repository.SelectByIdAsync(id);
+            return product;
+        }
+        catch (Exception ex)
+        {
+            throw new ApplicationException("Error retrievbyIDing products", ex);
+        }
+    }
+
+    public async ValueTask<Product> ModifyAsync(Guid id, Product productDto)
+    {
+        if (productDto == null || id == null) throw new ArgumentException("Both 'productDto' and 'id' parameters cannot be null.");
+        try
+        {
+            var product = await _repository.SelectByIdAsync(id);
+            product.Name = productDto.Name;
+            product.Description = productDto.Description;
+
+            var result = await _repository.UpdateAsync(id, product);
+            return result;
+        }
+        catch (Exception ex)
+        {
+            throw new ApplicationException(" Product Could not created ", ex);
         }
     }
 }

@@ -12,7 +12,7 @@ using ProductStore.Infrastructure.Data;
 namespace ProductStore.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240224060407_Initial")]
+    [Migration("20240225174409_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -42,6 +42,26 @@ namespace ProductStore.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Products");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("183d8d41-9fb2-4cbe-b800-76dae6d13d7a"),
+                            Description = "Very Expensive",
+                            Name = "Iphone"
+                        },
+                        new
+                        {
+                            Id = new Guid("e00cc1dc-fd12-4195-9cb4-8e3925a5c870"),
+                            Description = "Not Expensive",
+                            Name = "Samsung"
+                        },
+                        new
+                        {
+                            Id = new Guid("b2e3ef6f-a532-460b-9c5b-5f0bf5e06376"),
+                            Description = "Very Cheap",
+                            Name = "Nokia"
+                        });
                 });
 #pragma warning restore 612, 618
         }

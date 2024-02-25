@@ -1,11 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ProductStore.Domain.Dtos
+namespace ProductStore.Domain.Dtos;
+
+public class ProductDto
 {
-    public class ProductDto
-    {
-        [MaxLength(250)]
-        public string Name { get; set; }
-        public string? Description { get; set; }
-    }
+    [MaxLength(250)]
+    public string Name { get; set; }
+    public string? Description { get; set; }
 }

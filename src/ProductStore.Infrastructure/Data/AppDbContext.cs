@@ -1,19 +1,29 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ProductStore.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace ProductStore.Infrastructure.Data
+namespace ProductStore.Infrastructure.Data;
+
+public class AppDbContext : DbContext
 {
-    public class AppDbContext :DbContext
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options):base(options)
-        {
-            Database.Migrate();
-        }
-        public DbSet<Product> Products { get; set; }    
+        Database.Migrate();
     }
+    public DbSet<Product> Products { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        // Seed data for Product
+        modelBuilder.Entity<Product>().HasData(
+            new Product { Id = Guid.NewGuid(), Name = "Iphone", Description = "Very Expensive" },
+            new Product { Id = Guid.NewGuid(), Name = "Samsung", Description = "Not Expensive" },
+            new Product { Id = Guid.NewGuid(), Name = "Nokia", Description = "Very Cheap" }
+
+        );
+
+    }
+
 }
+
